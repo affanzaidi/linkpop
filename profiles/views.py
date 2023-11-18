@@ -158,6 +158,104 @@ class UserDevice(APIView):
 
 
 
+class UserDeviceType(APIView):
+    def post(self, request, *args, **kwargs):
+        data = JSONParser().parse(request)
+        user_id = data['user_id']
+        device_type_list  = [] 
+        all_device = Device.objects.filter(user_id = user_id)
+        userdata = Deviceserializer(all_device, many = True)
+        if userdata.data:
+            for data in userdata.data:
+                device_type = Device_Type.objects.filter(pk=int(data['device_type']))
+                device_type_data = DeviceTypeserializer(device_type, many = True)
+                device_type_list.append(device_type_data.data)
+            
+                return_data = {
+                        "data": device_type_list,
+                        "message": "Device type found",   
+                        "response": "true" 
+                    }
+                return Response(return_data, status=status.HTTP_201_CREATED)
+        return_data = {"data":[],"response":"false"} 
+        return Response(return_data, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SingleDeviceInfo(APIView):
+    def get(self, request, id):
+        device = Device.objects.filter(server_device_id=id)
+        devicedata = Deviceserializer(device, many=True)
+        return Response(devicedata.data)
+ 
+    def delete(self, request, id):
+        Device = get_object_or_404(Device, pk = id)
+        Device.delete()
+        return Response({"Success":"True"},status=status.HTTP_200_OK)
+
+    def put(self,request, id):
+        data = JSONParser().parse(request)
+        print("data parsed")
+        update = get_object_or_404(Device, pk=id)
+        print(data["first_name"])
+        update_details = Deviceserializer(
+            update, data = data)
+        # print(update_details.first_name)
+        if update_details.is_valid():
+            print(":valid data")
+            update_details.save()
+            return Response(update_details.data, status=status.HTTP_200_OK)
+        return Response(update_details.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class DeviceTypeInfo(APIView):
+    def post(self, request, *args, **kwargs):
+        userinfo_data = JSONParser().parse(request)
+        userdata = DeviceTypeserializer(data=userinfo_data, partial = True)
+        if userdata.is_valid():
+            userdata.save()
+            return_data = {
+                "data": userdata.data,
+                 "message": "Device saved successfully",   
+                 "response": "true" 
+            }
+            return Response(return_data, status=status.HTTP_201_CREATED)
+        
+        return Response(userdata.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        Device_info_data = Device_Type.objects.all()
+        Devicedata = DeviceTypeserializer(Device_info_data, many=True)
+        return Response( Devicedata.data)
+
+
+
+class SingleDeviceTypeInfo(APIView):
+    def get(self, request, id):
+        device = Device_Type.objects.filter(pk=id)
+        devicedata = DeviceTypeserializer(device, many=True)
+        print(devicedata.data)
+        return Response(devicedata.data)
+ 
+    def delete(self, request, id):
+        device = get_object_or_404(Device_Type, pk = id)
+        device.delete()
+        return Response({"Success":"True"},status=status.HTTP_200_OK)
+
+    def put(self,request, id):
+        data = JSONParser().parse(request)
+        print("data parsed")
+        update = get_object_or_404(Device_Type, pk=id)
+        print(data["first_name"])
+        update_details = DeviceTypeserializer(
+            update, data = data)
+        # print(update_details.first_name)
+        if update_details.is_valid():
+            print(":valid data")
+            update_details.save()
+            return Response(update_details.data, status=status.HTTP_200_OK)
+        return Response(update_details.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SingleUserInfo(APIView):
     def get(self, request, id):
@@ -223,6 +321,140 @@ class SingleYoutubeInfo(APIView):
 
 
 
+
+class SingleDeviceInfo(APIView):
+    def get(self, request, id):
+        device = Device.objects.filter(server_device_id=id)
+        devicedata = Deviceserializer(device, many=True)
+        return Response(devicedata.data)
+ 
+    def delete(self, request, id):
+        Device = get_object_or_404(Device, pk = id)
+        Device.delete()
+        return Response({"Success":"True"},status=status.HTTP_200_OK)
+
+    def put(self,request, id):
+        data = JSONParser().parse(request)
+        print("data parsed")
+        update = get_object_or_404(Device, pk=id)
+        print(data["first_name"])
+        update_details = Deviceserializer(
+            update, data = data)
+        # print(update_details.first_name)
+        if update_details.is_valid():
+            print(":valid data")
+            update_details.save()
+            return Response(update_details.data, status=status.HTTP_200_OK)
+        return Response(update_details.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class GroupInfo(APIView):
+    def post(self, request, *args, **kwargs):
+        userinfo_data = JSONParser().parse(request)
+        userdata = DeviceGroupserializer(data=userinfo_data, partial = True)
+        if userdata.is_valid():
+            userdata.save()
+            return_data = {
+                "data": userdata.data,
+                 "message": "Device saved successfully",   
+                 "response": "true" 
+            }
+            return Response(return_data, status=status.HTTP_201_CREATED)
+        
+        return Response(userdata.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        Device_info_data = Device_Group.objects.all()
+        Devicedata = DeviceGroupserializer(Device_info_data, many=True)
+        return Response( Devicedata.data)
+
+
+class GroupDetailsInfo(APIView):
+    def post(self, request, *args, **kwargs):
+        userinfo_data = JSONParser().parse(request)
+        userdata = DeviceGroupDetailSerializer(data=userinfo_data, partial = True)
+        if userdata.is_valid():
+            userdata.save()
+            return_data = {
+                "data": userdata.data,
+                 "message": "Device saved successfully",   
+                 "response": "true" 
+            }
+            return Response(return_data, status=status.HTTP_201_CREATED)
+        
+        return Response(userdata.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        Device_info_data = Device_group_Details.objects.all()
+        Devicedata = DeviceGroupDetailSerializer(Device_info_data, many=True)
+        return Response( Devicedata.data)
+
+
+
+class SaveGroup(APIView):
+    def post(self, request, *args, **kwargs):
+        data = JSONParser().parse(request) 
+        is_update = data["is_update"]
+        device_data = []
+        if is_update == "0":
+            print("in create")
+            devicedata = DeviceGroupserializer(data=data, partial = True)
+            if devicedata.is_valid():
+                devicedata.save()
+                group_id = devicedata.data["id"]
+                devices = data["devices"]
+                u_id = data["user_id"]
+                sts = data['status']
+                devices = devices.split(",")
+                for device in devices:
+                    post_data = {
+                        "device_id": device,
+                        "group_id": group_id,
+                        "user_id": u_id,
+                        "status": sts,
+                    }
+                    group_device_data = DeviceGroupDetailSerializer(data=post_data, partial = True)
+                    if group_device_data.is_valid():
+                        group_device_data.save()
+                        print(group_device_data.data)
+                    data = Device.objects.get(pk = device)
+                    device_serializer = Deviceserializer(data)
+                    device_data.append(device_serializer.data)
+                    print(device_serializer.data)
+                data = devicedata.data
+                data["devices"] = device_data
+                return_data = {
+                    "data":data,
+                        
+                    "message": "Group Created successfully",   
+                    "response": "true"
+                }   
+                
+            return Response(return_data, status=status.HTTP_201_CREATED)
+        
+        return Response("userdata.errors", status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        Device_info_data = Device_Group.objects.all()
+        Devicedata = DeviceGroupserializer(Device_info_data, many=True)
+        return Response( Devicedata.data)
+    
+class UserGroups(APIView):
+   def post(self, request, *args, **kwargs):
+        data = JSONParser().parse(request) 
+        user_id = data["user_id"]
+        Device_info_data = Device_Group.objects.filter(user_id= user_id)
+        Devicedata = DeviceGroupserializer(Device_info_data, many=True)
+        if Devicedata.data:
+            return_data = {
+                "group": Devicedata.data,
+                "message": "device group list",   
+                "response": "true"
+            }
+            return Response(return_data)   
+        return_data =  {"message":"device group not found","response":"false"}
+        return Response(return_data)
 
 class LinkInfo(APIView):
     def post(self, request, *args, **kwargs):

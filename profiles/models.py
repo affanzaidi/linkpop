@@ -4,11 +4,17 @@ from django.db import models
 # Create your models here.
 
 class User(models.Model):
-    id          = models.IntegerField(primary_key=True)
-    first_name  = models.CharField(max_length=255)
-    email       = models.CharField(max_length=255)
-    mobile      = models.CharField(max_length=255)
-    password    = models.CharField(max_length=255)
+    id              = models.AutoField(primary_key=True)
+    email           = models.CharField(max_length=255)
+    username        = models.CharField(max_length=255)
+    account_name    = models.CharField(max_length=255)
+    mobile_number   = models.CharField(max_length=20)
+    password        = models.CharField(max_length=255)
+    device_token    = models.CharField(max_length=255)
+    device_type     = models.IntegerField()
+    created_date    = models.DateTimeField(auto_now_add=True)
+    status          = models.IntegerField()
+    updated_date    = models.DateTimeField(auto_now=True)
     
     
 class Alarm(models.Model):
@@ -55,9 +61,9 @@ class Device_Favourite_Details(models.Model):
     
     
 class Device_Group(models.Model):
-    device_group_id     = models.IntegerField()
-    group_name          =  models.CharField(max_length=255)
-    user_id             = models.IntegerField()
+    device_group_id     = models.AutoField(primary_key=True)
+    group_name          = models.CharField(max_length=255)
+    user_id             = models.ForeignKey(User, on_delete=models.CASCADE,)
     local_group_id      = models.CharField(max_length=255)
     local_group_hex_id  = models.CharField(max_length=255)
     status              = models.IntegerField()
@@ -67,10 +73,10 @@ class Device_Group(models.Model):
     
     
 class Device_group_Details(models.Model):
-    device_group_details_id = models.IntegerField()
-    device_id               = models.IntegerField()
-    group_id                = models.IntegerField()
-    user_id                 = models.IntegerField()
+    device_group_details_id = models.AutoField(primary_key=True)
+    device_id               = models.ForeignKey(Device, on_delete=models.CASCADE,blank= True, null=True)
+    group_id                = models.ForeignKey(Device_Group, on_delete=models.CASCADE,blank= True, null=True)
+    user_id                 = models.ForeignKey(User, on_delete=models.CASCADE,blank= True, null=True)
     status                  = models.IntegerField()
     created_date            = models.DateTimeField(auto_now_add=True)
     
@@ -87,7 +93,7 @@ class Device_Socket_Details(models.Model):
     
     
 class Device_Type(models.Model):
-    id                  = models.IntegerField(primary_key=True)
+    id                  = models.AutoField(primary_key=True)
     device_type_name    = models.CharField(max_length=255)
     device_type_value   = models.CharField(max_length=255)
     status              = models.IntegerField()
@@ -119,18 +125,18 @@ class Socket_Strip_Device_Details(models.Model):
     service_device_id   = models.IntegerField()
     created_date        = models.DateTimeField(auto_now_add=True)
     
-class User(models.Model):
-    id              = models.AutoField(primary_key=True)
-    email           = models.CharField(max_length=255)
-    username        = models.CharField(max_length=255)
-    account_name    = models.CharField(max_length=255)
-    mobile_number   = models.CharField(max_length=20)
-    password        = models.CharField(max_length=255)
-    device_token    = models.CharField(max_length=255)
-    device_type     = models.IntegerField()
-    created_date    = models.DateTimeField(auto_now_add=True)
-    status          = models.IntegerField()
-    updated_date    = models.DateTimeField(auto_now=True)
+# class User(models.Model):
+#     id              = models.AutoField(primary_key=True)
+#     email           = models.CharField(max_length=255)
+#     username        = models.CharField(max_length=255)
+#     account_name    = models.CharField(max_length=255)
+#     mobile_number   = models.CharField(max_length=20)
+#     password        = models.CharField(max_length=255)
+#     device_token    = models.CharField(max_length=255)
+#     device_type     = models.IntegerField()
+#     created_date    = models.DateTimeField(auto_now_add=True)
+#     status          = models.IntegerField()
+#     updated_date    = models.DateTimeField(auto_now=True)
     
 
 class User_Device_Token(models.Model):

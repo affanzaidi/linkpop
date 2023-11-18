@@ -90,7 +90,7 @@ class Deviceserializer(serializers.ModelSerializer):
     mac_address = serializers.CharField(allow_null=True)
     socket_status = serializers.CharField(allow_null=True)
     wifi_configured = serializers.CharField(allow_null=True)
-    print("In Device serianlier")
+    # print("In Device serianlier")
     
     class Meta:
         model = Device
@@ -171,6 +171,179 @@ class Deviceserializer(serializers.ModelSerializer):
             instance.socket_status = obj["socket_status"]
         if "wifi_configured" in obj:
             instance.wifi_configured = obj["wifi_configured"]
+        instance.save()
+        return instance
+
+
+
+class DeviceTypeserializer(serializers.ModelSerializer):
+    device_type_name = serializers.CharField(allow_null=True)
+    device_type_value = serializers.CharField(allow_null=True)
+    status = serializers.IntegerField(allow_null=True)
+    # print("In Device Type serianlier")
+    
+    class Meta:
+        model = Device_Type
+        fields = '__all__'
+
+
+    def create(self, obj):
+        new_device = Device_Type.objects.create(
+            device_type_name = obj["device_type_name"],
+            device_type_value = obj["device_type_value"],
+            status= obj["status"]
+        )
+        return new_device
+     
+    def to_representation(self, instance):
+        # print("In Device Type to rep serianlier")
+        return_usersinfo = {
+            "id":instance.id,
+            "device_type_name":instance.device_type_name,
+            "device_type_value": instance.device_type_value,
+            "status": instance.status,
+            "created_date": instance.created_date,
+        }
+        return return_usersinfo
+
+    def update(self, instance, obj):
+        # print("in update user")
+        if "device_type_name" in obj:
+            instance.device_type_name = obj["device_type_name"]
+        if "device_type_value" in obj:
+            instance.device_type_value = obj["device_type_value"]
+        if "status" in obj:
+            instance.status = obj["status"]
+        instance.save()
+        return instance
+
+
+
+
+
+class DeviceGroupserializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(allow_null=True)
+    user_id = serializers.CharField(allow_null=True)
+    local_group_id = serializers.CharField(allow_null=True)
+    local_group_hex_id = serializers.CharField(allow_null=True)
+    status = serializers.IntegerField(allow_null=True)
+    is_favourite = serializers.IntegerField(allow_null=True)
+    
+    # print("In Device serianlier")
+    
+    class Meta:
+        model = Device_Group
+        fields = '__all__'
+
+
+    def create(self, obj):
+        new_device = Device_Group.objects.create(
+            group_name = obj["group_name"],
+            user_id = User.objects.get(id=obj["user_id"]),
+            local_group_id = obj["local_group_id"],
+            local_group_hex_id= obj["local_group_hex_id"],
+            status= obj["status"],
+            is_favourite = obj["is_favourite"]
+        )
+        # user_id = obj["user_id"]
+        if 'user_id' in obj:
+            print("IN USER ID")
+            new_device.user_id = User.objects.get(id=obj["user_id"])
+        new_device.save()
+        return new_device
+     
+    def to_representation(self, instance):
+        Device_info_data = Device_group_Details.objects.filter(group_id = instance.device_group_id, )
+        Devicedata = DeviceGroupDetailSerializer(Device_info_data, many=True)
+        devices = Devicedata.data
+        device_list = []
+        for device in devices:
+            device = Device.objects.filter(server_device_id=device['device_id'])
+            device_ser = Deviceserializer(device, many=True)
+            device_list.append(device_ser.data[0])
+        return_usersinfo = {
+            "id" : instance.device_group_id,
+            "devices": device_list,
+            "group_name": instance.group_name,
+            "user_id":instance.user_id.id,
+            "local_group_id": instance.local_group_id,
+            "local_group_hex_id": instance.local_group_hex_id,
+            "status": instance.status,
+            "is_favourite": instance.is_favourite,
+            "created_date": instance.created_date,
+            "updated_date": instance.updated_date
+        }
+        return return_usersinfo
+
+    def update(self, instance, obj):
+        print("in update user")
+        if "group_name" in obj:
+            instance.group_name = obj["group_name"]
+        if "user_id" in obj:
+            instance.user_id = obj["user_id"]
+        if "local_group_id" in obj:
+            instance.local_group_id = obj["local_group_id"]
+        if "local_group_hex_id" in obj:
+            instance.local_group_hex_id = obj["local_group_hex_id"]
+        if "status" in obj:
+            instance.status = obj["status"]
+        if "is_favourite" in obj:
+            instance.is_favourite = obj["is_favourite"]
+        instance.save()
+        return instance
+
+
+
+
+
+class DeviceGroupDetailSerializer(serializers.ModelSerializer):
+    device_id = serializers.IntegerField(allow_null=True)
+    group_id = serializers.IntegerField(allow_null=True)
+    user_id = serializers.IntegerField(allow_null=True)
+    status = serializers.IntegerField(allow_null=True)
+    
+    print("In Device serianlier")
+    
+    class Meta:
+        model = Device_group_Details
+        fields = '__all__'
+
+
+    def create(self, obj):
+        new_device = Device_group_Details.objects.create(
+            device_id = Device.objects.get(server_device_id=obj["device_id"]),
+            group_id = Device_Group.objects.get(device_group_id=obj["group_id"]),
+            # user_id = User.objects.get(id=obj["user_id"]),
+            status= obj["status"],
+        )
+        # user_id = obj["user_id"]
+        if 'user_id' in obj:
+            print("IN USER ID")
+            new_device.user_id = User.objects.get(id=obj["user_id"])
+        new_device.save()
+        return new_device
+     
+    def to_representation(self, instance):
+        return_usersinfo = {
+            "id" : instance.device_group_details_id,
+            "device_id": instance.device_id.server_device_id,
+            "group_id": instance.group_id.device_group_id,
+            "user_id":instance.user_id.id,
+            "status": instance.status,
+            "created_date": instance.created_date,
+        }
+        return return_usersinfo
+
+    def update(self, instance, obj):
+        print("in update user")
+        if "device_id" in obj:
+            instance.device_id = obj["device_id"]
+        if "user_id" in obj:
+            instance.user_id = obj["user_id"]
+        if "group_id" in obj:
+            instance.group_id = obj["group_id"]
+        if "status" in obj:
+            instance.status = obj["status"]
         instance.save()
         return instance
 
